@@ -45,7 +45,6 @@ app.get("/expire/:second", (req, res) => {
 app.get("/decode/:token", (req, res) => {
   const { token } = req.params;
   try {
-    //const decoded = jwt.verify(token, "invalid-token-test");
     const decoded = jwt.verify(token, privateKey);
     const tokenParts = token.split(".");
     const decoded1 = Buffer.from(tokenParts[0], "base64");
@@ -54,8 +53,9 @@ app.get("/decode/:token", (req, res) => {
       .createHmac("sha256", privateKey)
       .update(tokenParts[0] + "." + tokenParts[1]) // 여기까지 만들어진 해쉬를
       .digest("base64") // base64의 형태로 인코딩(hex -> base64)
-      .replace("=", "")
-      .replace("/", "_");
+      .replaceAll("=", "")
+      .replaceAll("+", "-")
+      .replaceAll("/", "_"); // base64 -> base64Url
 
     console.log(`token header   : ${decoded1.toString()}`);
     console.log(`token payload  : ${decoded2.toString()}`);
